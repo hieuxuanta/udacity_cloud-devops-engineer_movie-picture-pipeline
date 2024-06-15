@@ -1,0 +1,68 @@
+name: Frontend Continuous Deployment
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run-lint-job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Use Node.js 18
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Clean install dependencies
+      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && npm ci
+
+    - name: Run linting jobs
+      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && npm run lint
+      continue-on-error: false
+
+  run-test-job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Use Node.js 18
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Clean install dependencies
+      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && npm ci
+
+    - name: Run linting jobs
+      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && npm run test
+      continue-on-error: false
+
+  post-build-job:
+    needs: [run-lint-job, run-test-job]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Use Node.js 18
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Clean install dependencies
+      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && npm ci
+
+    - name: Run linting jobs
+      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && npm run test
+      continue-on-error: false
+
+    - name: Build Docker image
+      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && docker build -t movie-picture-frontend --build-arg REACT_APP_MOVIE_API_URL=http://localhost:5000 .
