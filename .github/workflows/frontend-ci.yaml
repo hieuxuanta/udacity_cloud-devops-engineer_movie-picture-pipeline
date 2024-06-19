@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   run-lint-job:
@@ -64,4 +64,4 @@ jobs:
       continue-on-error: false
 
     - name: Build Docker image
-      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && docker build -t movie-picture-frontend --build-arg REACT_APP_MOVIE_API_URL=http://localhost:5000 .
+      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && docker build -t movie-picture-frontend --build-arg REACT_APP_MOVIE_API_URL=http://localhost:3000 .
