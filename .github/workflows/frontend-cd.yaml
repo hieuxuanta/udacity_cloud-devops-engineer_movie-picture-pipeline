@@ -14,17 +14,16 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
 
-    - name: Use Node.js 18
+    - name: Use Node.js 16
       uses: actions/setup-node@v3
       with:
-        node-version: 18
+        node-version: 16
 
     - name: Clean install dependencies
-      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && npm ci
+      run: cd starter/frontend && npm ci
 
     - name: Run linting jobs
-      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && npm run lint
-      continue-on-error: false
+      run: cd starter/frontend && npm run lint --fix
 
   run-test-job:
     runs-on: ubuntu-latest
@@ -33,16 +32,16 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
 
-    - name: Use Node.js 18
+    - name: Use Node.js 16
       uses: actions/setup-node@v3
       with:
-        node-version: 18
+        node-version: 16
 
     - name: Clean install dependencies
-      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && npm ci
+      run: cd starter/frontend && npm ci
 
-    - name: Run linting jobs
-      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && npm run test
+    - name: Run testing jobs
+      run: cd starter/frontend && npm run test
       continue-on-error: false
 
   post-build-job:
@@ -52,17 +51,39 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
 
-    - name: Use Node.js 18
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        # aws-session-token: ${{secrets.AWS_SESSION_TOKEN}}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Use Node.js 16
       uses: actions/setup-node@v3
       with:
-        node-version: 18
+        node-version: 16
 
     - name: Clean install dependencies
-      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && npm ci
+      run: cd starter/frontend && npm ci
 
-    - name: Run linting jobs
-      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && npm run test
+    - name: Run testing jobs
+      run: cd starter/frontend && npm run test
       continue-on-error: false
 
     - name: Build Docker image
-      run: cd /workspace/udacity_cloud-devops-engineer_movie-picture-pipeline/starter/frontend && docker build -t movie-picture-frontend --build-arg REACT_APP_MOVIE_API_URL=http://localhost:5000 .
+      run: cd starter/frontend && docker build -t movie-picture-frontend --build-arg REACT_APP_MOVIE_API_URL=http://localhost:3000 .
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push docker image to Amazon ECR
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        REPOSITORY: my-ecr-repo
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        cd starter/frontend
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
