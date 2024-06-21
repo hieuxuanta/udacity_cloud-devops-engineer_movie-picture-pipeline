@@ -1,0 +1,67 @@
+name: Backend Continuous Integration
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  run-lint-job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Use Node.js 16
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+
+    - name: Install dependencies
+      run: cd starter/backend && pipenv install
+
+    - name: Run linting jobs
+      run: cd starter/backend && pipenv run lint
+
+  run-test-job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Use Node.js 16
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+
+    - name: Install dependencies
+      run: cd starter/backend && pipenv install
+
+    - name: Run testing jobs
+      run: cd starter/backend && pipenv run test
+      continue-on-error: false
+
+  post-build-job:
+    needs: [run-lint-job, run-test-job]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Use Node.js 16
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+
+    - name: Install dependencies
+      run: cd starter/backend && pipenv install
+
+    - name: Run testing jobs
+      run: cd starter/backend && pipenv run test
+      continue-on-error: false
+
+    - name: Build Docker image
+      run: cd starter/backend && docker build -t movie-picture-backend .
