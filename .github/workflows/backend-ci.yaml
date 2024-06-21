@@ -25,8 +25,8 @@ jobs:
     - name: Install dependencies
       run: cd starter/backend && pipenv install
 
-    - name: Run linting jobs
-      run: cd starter/backend && pipenv run lint
+    - name: Run flake8 Lint
+      uses: py-actions/flake8@v2
 
   run-test-job:
     runs-on: ubuntu-latest
