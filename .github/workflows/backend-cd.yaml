@@ -14,16 +14,21 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
 
-    - name: Use Node.js 16
-      uses: actions/setup-node@v3
+    - name: Use python 3.10
+      uses: actions/setup-python@v5
       with:
-        node-version: 16
+        python-version: '3.10' 
+
+    - name: Install pipenv
+      run: pip install pipenv
 
     - name: Install dependencies
       run: cd starter/backend && pipenv install
 
-    - name: Run linting jobs
-      run: cd starter/backend && pipenv run lint
+    - name: Run flake8 Lint
+      uses: py-actions/flake8@v2
+      with:
+        max-line-length: "120"
 
   run-test-job:
     runs-on: ubuntu-latest
@@ -32,10 +37,13 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
 
-    - name: Use Node.js 16
-      uses: actions/setup-node@v3
+    - name: Use python 3.10
+      uses: actions/setup-python@v5
       with:
-        node-version: 16
+        python-version: '3.10'
+
+    - name: Install pipenv
+      run: pip install pipenv
 
     - name: Install dependencies
       run: cd starter/backend && pipenv install
@@ -59,10 +67,13 @@ jobs:
         # aws-session-token: ${{secrets.AWS_SESSION_TOKEN}}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Use Node.js 16
-      uses: actions/setup-node@v3
+    - name: Use python 3.10
+      uses: actions/setup-python@v5
       with:
-        node-version: 16
+        python-version: '3.10'
+
+    - name: Install pipenv
+      run: pip install pipenv
 
     - name: Install dependencies
       run: cd starter/backend && pipenv install
