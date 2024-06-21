@@ -102,7 +102,7 @@ jobs:
         NEW_IMAGE_TAG: ${{ github.sha }}
       run: |
         cd starter/backend/k8s
-        aws eks update-kubeconfig
+        aws eks --region us-east-1 update-kubeconfig --name cluster
         kustomize edit set image backend=$ECR_REPO_URL:$NEW_IMAGE_TAG
         kustomize build | kubectl apply -f -
         kubectl get svc
