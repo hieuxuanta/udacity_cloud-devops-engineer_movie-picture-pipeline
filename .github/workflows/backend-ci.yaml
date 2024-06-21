@@ -14,10 +14,10 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
 
-    - name: Use Node.js 16
-      uses: actions/setup-node@v3
+    - name: Use python 3.10
+      uses: actions/setup-python@v5
       with:
-        node-version: 16
+        python-version: '3.10'
 
     - name: Install dependencies
       run: cd starter/backend && pipenv install
@@ -32,10 +32,10 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
 
-    - name: Use Node.js 16
-      uses: actions/setup-node@v3
+    - name: Use python 3.10
+      uses: actions/setup-python@v5
       with:
-        node-version: 16
+        python-version: '3.10'
 
     - name: Install dependencies
       run: cd starter/backend && pipenv install
@@ -51,10 +51,10 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
 
-    - name: Use Node.js 16
-      uses: actions/setup-node@v3
+    - name: Use python 3.10
+      uses: actions/setup-python@v5
       with:
-        node-version: 16
+        python-version: '3.10' 
 
     - name: Install dependencies
       run: cd starter/backend && pipenv install
