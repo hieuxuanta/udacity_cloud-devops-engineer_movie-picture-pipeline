@@ -46,6 +46,8 @@ jobs:
 
   post-build-job:
     needs: [run-lint-job, run-test-job]
+    env:
+      REACT_APP_MOVIE_API_URL: 'acfbe5c0eb58d4c2a91a1656a59ac9ca-1182710197.us-east-1.elb.amazonaws.com:5000'
     runs-on: ubuntu-latest
     steps:
     - name: Check out repository
@@ -71,9 +73,6 @@ jobs:
       run: cd starter/frontend && npm run test
       continue-on-error: false
 
-    - name: Build Docker image
-      run: cd starter/frontend && docker build -t movie-picture-frontend --build-arg REACT_APP_MOVIE_API_URL=http://localhost:3000 .
-
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
@@ -81,9 +80,21 @@ jobs:
     - name: Build, tag, and push docker image to Amazon ECR
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        REPOSITORY: my-ecr-repo
+        REPOSITORY: frontend
         IMAGE_TAG: ${{ github.sha }}
       run: |
         cd starter/frontend
-        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+        docker build --build-arg REACT_APP_MOVIE_API_URL=${{env.REACT_APP_MOVIE_API_URL}} -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+    - name: Deploy Kubernetes manifests
+      env:
+        ECR_REPO_URL: 047990169518.dkr.ecr.us-east-1.amazonaws.com/frontend
+        NEW_IMAGE_TAG: ${{ github.sha }}
+      run: |
+        cd starter/frontend/k8s
+        aws eks --region us-east-1 update-kubeconfig --name cluster
+        kustomize edit set image frontend=$ECR_REPO_URL:$NEW_IMAGE_TAG
+        kustomize build | kubectl apply -f -
+        kubectl get pods
+        kubectl get svc
