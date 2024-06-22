@@ -47,7 +47,7 @@ jobs:
   post-build-job:
     needs: [run-lint-job, run-test-job]
     env:
-      REACT_APP_MOVIE_API_URL: 'acfbe5c0eb58d4c2a91a1656a59ac9ca-1182710197.us-east-1.elb.amazonaws.com:5000'
+      REACT_APP_MOVIE_API_URL: 'http://acfbe5c0eb58d4c2a91a1656a59ac9ca-1182710197.us-east-1.elb.amazonaws.com:5000'
     runs-on: ubuntu-latest
     steps:
     - name: Check out repository
