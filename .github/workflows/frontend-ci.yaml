@@ -8,6 +8,10 @@ on:
     paths:
       - 'starter/frontend/**'
 
+defaults:
+  run:
+    working-directory: starter/frontend
+
 jobs:
   run-lint-job:
     runs-on: ubuntu-latest
