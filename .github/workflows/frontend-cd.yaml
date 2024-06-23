@@ -89,7 +89,6 @@ jobs:
         REPOSITORY: frontend
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        cd starter/frontend
         docker build --build-arg REACT_APP_MOVIE_API_URL=${{env.REACT_APP_MOVIE_API_URL}} -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
@@ -98,7 +97,7 @@ jobs:
         ECR_REPO_URL: $REGISTRY/$REPOSITORY
         NEW_IMAGE_TAG: ${{ github.sha }}
       run: |
-        cd starter/frontend/k8s
+        cd k8s
         aws eks --region us-east-1 update-kubeconfig --name cluster
         kustomize edit set image frontend=$ECR_REPO_URL:$NEW_IMAGE_TAG
         kustomize build | kubectl apply -f -
