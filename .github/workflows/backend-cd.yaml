@@ -5,6 +5,12 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - 'starter/backend/**'
+
+defaults:
+  run:
+    working-directory: starter/backend
 
 jobs:
   run-lint-job:
@@ -23,7 +29,7 @@ jobs:
       run: pip install pipenv
 
     - name: Install dependencies
-      run: cd starter/backend && pipenv install
+      run: pipenv install
 
     - name: Run flake8 Lint
       uses: py-actions/flake8@v2
@@ -46,10 +52,10 @@ jobs:
       run: pip install pipenv
 
     - name: Install dependencies
-      run: cd starter/backend && pipenv install
+      run: pipenv install
 
     - name: Run testing jobs
-      run: cd starter/backend && pipenv run test
+      run: pipenv run test
       continue-on-error: false
 
   post-build-job:
@@ -76,10 +82,10 @@ jobs:
       run: pip install pipenv
 
     - name: Install dependencies
-      run: cd starter/backend && pipenv install
+      run: pipenv install
 
     - name: Run testing jobs
-      run: cd starter/backend && pipenv run test
+      run: pipenv run test
       continue-on-error: false
 
     - name: Login to Amazon ECR
@@ -92,13 +98,12 @@ jobs:
         REPOSITORY: backend
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        cd starter/backend
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
     - name: Deploy Kubernetes manifests
       env:
-        ECR_REPO_URL: 047990169518.dkr.ecr.us-east-1.amazonaws.com/backend
+        ECR_REPO_URL: $REGISTRY/$REPOSITORY
         NEW_IMAGE_TAG: ${{ github.sha }}
       run: |
         cd starter/backend/k8s

@@ -5,6 +5,12 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - 'starter/frontend/**'
+
+defaults:
+  run:
+    working-directory: starter/frontend
 
 jobs:
   run-lint-job:
@@ -20,10 +26,10 @@ jobs:
         node-version: 16
 
     - name: Clean install dependencies
-      run: cd starter/frontend && npm ci
+      run: npm ci
 
     - name: Run linting jobs
-      run: cd starter/frontend && npm run lint --fix
+      run: npm run lint --fix
 
   run-test-job:
     runs-on: ubuntu-latest
@@ -38,16 +44,16 @@ jobs:
         node-version: 16
 
     - name: Clean install dependencies
-      run: cd starter/frontend && npm ci
+      run: npm ci
 
     - name: Run testing jobs
-      run: cd starter/frontend && npm run test
+      run: npm run test
       continue-on-error: false
 
   post-build-job:
     needs: [run-lint-job, run-test-job]
     env:
-      REACT_APP_MOVIE_API_URL: 'http://acfbe5c0eb58d4c2a91a1656a59ac9ca-1182710197.us-east-1.elb.amazonaws.com'
+      REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
     runs-on: ubuntu-latest
     steps:
     - name: Check out repository
@@ -67,10 +73,10 @@ jobs:
         node-version: 16
 
     - name: Clean install dependencies
-      run: cd starter/frontend && npm ci
+      run: npm ci
 
     - name: Run testing jobs
-      run: cd starter/frontend && npm run test
+      run: npm run test
       continue-on-error: false
 
     - name: Login to Amazon ECR
@@ -89,7 +95,7 @@ jobs:
 
     - name: Deploy Kubernetes manifests
       env:
-        ECR_REPO_URL: 047990169518.dkr.ecr.us-east-1.amazonaws.com/frontend
+        ECR_REPO_URL: $REGISTRY/$REPOSITORY
         NEW_IMAGE_TAG: ${{ github.sha }}
       run: |
         cd starter/frontend/k8s

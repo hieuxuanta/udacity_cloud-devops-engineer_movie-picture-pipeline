@@ -5,6 +5,12 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - 'starter/backend/**'
+
+defaults:
+  run:
+    working-directory: starter/backend
 
 jobs:
   run-lint-job:
@@ -23,7 +29,7 @@ jobs:
       run: pip install pipenv
 
     - name: Install dependencies
-      run: cd starter/backend && pipenv install
+      run: pipenv install
 
     - name: Run flake8 Lint
       uses: py-actions/flake8@v2
@@ -46,10 +52,10 @@ jobs:
       run: pip install pipenv
 
     - name: Install dependencies
-      run: cd starter/backend && pipenv install
+      run: pipenv install
 
     - name: Run testing jobs
-      run: cd starter/backend && pipenv run test
+      run: pipenv run test
       continue-on-error: false
 
   post-build-job:
@@ -68,11 +74,11 @@ jobs:
       run: pip install pipenv
 
     - name: Install dependencies
-      run: cd starter/backend && pipenv install
+      run: pipenv install
 
     - name: Run testing jobs
-      run: cd starter/backend && pipenv run test
+      run: pipenv run test
       continue-on-error: false
 
     - name: Build Docker image
-      run: cd starter/backend && docker build -t movie-picture-backend .
+      run: docker build -t movie-picture-backend .
